@@ -1,4 +1,4 @@
-<?php 
+<?php
 // This file is part of Moodle block course_ratings - http://moodle.org/
 /**
  * Adding/editing Rating criteria.
@@ -47,7 +47,7 @@ if ($delete && confirm_sesskey($sesskey)) {
     }
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
-
+// TODO add assoc form and backend
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
 // Process data
 if ($data = $mform->get_data()) {
@@ -139,6 +139,6 @@ foreach ($crits as $cid => $crit) {
     $url->param('delete', 1);
     $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/delete').' />', array('title' => get_string('delete'), 'class' => 'iconsmall', 'alt' => get_string('delete')));
     $table->add_data($row);
-} 
+}
 $table->finish_output();
 echo $OUTPUT->footer();
