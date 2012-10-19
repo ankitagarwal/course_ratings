@@ -1,0 +1,36 @@
+<?php 
+// This file is part of Moodle block course_ratings - http://moodle.org/
+/**
+ * Adding/editing Rating criteria.
+ *
+ * @copyright 2012 Ankit Kumar Agarwal
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+defined('MOODLE_INTERNAL') || die();
+
+$capabilities = array(
+
+    'block/rss_client:manageownfeeds' => array(
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+
+    'block/rss_client:manageanyfeeds' => array(
+
+        'riskbitmask' => RISK_SPAM,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW
+        )
+    )
+
+);
