@@ -27,17 +27,25 @@ class course_rating_edit_form extends moodleform {
         $mform->addElement('hidden', 'courseid');
         $mform->setConstant('courseid', $courseid );
 
+        $options = empty($this->_customdata['hassystemcap']) ? array ('1' => 'course') : array ('1' => 'course', '0' => 'site');
+        $mform->addElement('select', 'level', get_string('select_level', 'block_course_ratings'), $options, array('0'));
+
         $mform->addElement('hidden', 'cid');
+        // We are editing an existing criteria.
         if (!empty ($this->_customdata['cid'])) {
             $cid = $this->_customdata['cid'];
-            $rec = $DB->get_record('block_course_rating_criteria', array('id' => $cid));
+            $rec = $DB->get_record('block_course_ratings_crit', array('id' => $cid));
             $mform->setConstant('cid', $cid);
             $mform->setConstant('courseid', $rec->courseid);
             $mform->setDefault('criteria', $rec->criteria);
+            if ($rec->courseid == 0) {
+                $mform->setDefault('level', '0');
+            } else {
+                $mform->setDefault('level', '1');
+            }
         }
 
-        $options = empty($this->_customdata['hassystemcap']) ? array ('1' => 'course') : array ('1' => 'course', '0' => 'site');
-        $mform->addElement('select', 'level',get_string('select_level', 'block_course_ratings'), $options);
+
         $this->add_action_buttons(false, get_string('savechanges'));
     }
 }

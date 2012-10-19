@@ -11,9 +11,11 @@ require_once('../../config.php');
 require_once('../../lib/formslib.php');
 require_once('../../lib/tablelib.php');
 require_once('criteria_form.php');
+
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
+$sesskey = optional_param('sesskey', '', PARAM_TEXT);
 
 // Cap checks.
 require_login();
@@ -33,9 +35,17 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managecriteria', 'block_course_ratings'));
 
 // Delete Criteria.
-if ($delete) {
-    // TODO implement delete
-    // TODO implement delete chain removing all ratings
+if ($delete && confirm_sesskey($sesskey)) {
+    $rec = $DB->get_record('block_course_ratings_crit', array('id' => $cid), '*', MUST_EXIST);
+    if ($hassystemcap || has_capability('blok/course_ratings:managecriteria', context_course::instance($rec->courseid))) {
+        $DB->delete_records('block_course_ratings_crit', array('id' => $cid));
+        $DB->delete_records('block_course_ratings_assoc', array('cid' => $cid));
+        $DB->delete_records('block_course_ratings_rating', array('cid' => $cid));
+        $cid = 0;
+    } else {
+        print_error('cannotdelete');
+    }
+    echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
 
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
@@ -88,7 +98,9 @@ $columns[]= 'course';
 $headers[]= get_string('course');
 $columns[]= 'createdby';
 $headers[]= get_string('createdby', 'block_course_ratings');
-$columns[]= 'checkbox';
+$columns[]= 'edit';
+$headers[]= null;
+$columns[]= 'delete';
 $headers[]= null;
 
 $table = new flexible_table('crit-report');
@@ -120,7 +132,12 @@ foreach ($crits as $cid => $crit) {
         $row[] = get_string('deleteduser', 'block_course_ratings');
     }
     //TODO replace below thing with delete and edit links
-    $row[] = html_writer::tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'delete'));
+    $url = $PAGE->url;
+    $url->param('cid', $crit->id);
+    $url->param('sesskey', sesskey());
+    $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/edit').' />', array('title' => get_string('edit'), 'class' => 'iconsmall', 'alt' => get_string('edit')));
+    $url->param('delete', 1);
+    $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/delete').' />', array('title' => get_string('delete'), 'class' => 'iconsmall', 'alt' => get_string('delete')));
     $table->add_data($row);
 } 
 $table->finish_output();
