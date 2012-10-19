@@ -6,6 +6,8 @@
  * @copyright 2012 Ankit Kumar Agarwal
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+$string['course_ratings:managecriteria'] = 'Manage criteria';
 $string['criteria'] = 'Criteria';
 $string['createdby'] = 'Criteria created by';
 $string['deleteduser'] = '<i>User has been deleted</i>';

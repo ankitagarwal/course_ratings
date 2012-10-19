@@ -9,6 +9,7 @@
 
 require_once('../../config.php');
 require_once('../../lib/formslib.php');
+require_once('../../lib/tablelib.php');
 require_once('criteria_form.php');
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', 0, PARAM_INT);
@@ -54,9 +55,9 @@ if ($data = $mform->get_data()) {
     }
     if (!empty($critid)) {
         $critobj->id = $critid;
-        $DB->update_record('block_course_rating_criteria', $critobj);
+        $DB->update_record('block_course_ratings_crit', $critobj);
     } else {
-        $DB->insert_record('block_course_rating_criteria', $critobj);
+        $DB->insert_record('block_course_ratings_crit', $critobj);
     }
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
@@ -64,34 +65,31 @@ if ($data = $mform->get_data()) {
 // Display form.
 $mform->display();
 
-$sql = "SELECT cr.*, c.fullname, u.firstname, u.lastname from {block_course_ratings_criteria} cr
+$sql = "SELECT cr.*, c.fullname, u.firstname, u.lastname from {block_course_ratings_crit} cr
         LEFT JOIN {course} c
             ON cr.courseid = c.id
         LEFT JOIN {user} u
             ON cr.userid = u.id";
 if ($hassystemcap) {
-    $where = " WHERE courseid = 0 OR courseid = ?";
+    // Return all since user has system context cap
+    $where = "";
 } else {
-    $where = " WHERE courseid = 0 OR courseid = ?";
+    $where = " WHERE cr.courseid = ?";
 }
-$cirts = $DB->get_records_sql($sql, array ($courseid));
+$sql = $sql.$where;
+$crits = $DB->get_records_sql($sql, array ($courseid));
 // Display existing criteria.
-if (empty ($crits)) {
-    echo html_writer::tag('div', get_string('nocrit', 'block_course_ratings'));
-    echo $OUTPUT->footer();
-    die;
-}
 $columns = array();
 $headers = array();
 
-$columns[]= 'checkbox';
-$headers[]= null;
 $columns[]= 'criteria';
 $headers[]= get_string('criteria', 'block_course_ratings');
 $columns[]= 'course';
 $headers[]= get_string('course');
 $columns[]= 'createdby';
 $headers[]= get_string('createdby', 'block_course_ratings');
+$columns[]= 'checkbox';
+$headers[]= null;
 
 $table = new flexible_table('crit-report');
 
@@ -104,24 +102,26 @@ $table->sortable(true);
 $table->collapsible(true);
 $table->no_sorting('checkbox');
 
-$table->set_up;
-print_object($SITE);
+$table->setup();
 foreach ($crits as $cid => $crit) {
     $row = array();
-    $row[] = html_writer::tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'delete'));
     $row[] = $crit->criteria;
     if ($crit->courseid != 0) {
         $courseurl = new moodle_url('/course/view.php', array('id' => $crit->courseid));
         $row[] = html_writer::link($courseurl->out(false), $crit->fullname);
     } else {
-        $row[] = $SITE->name;
+        $row[] = $SITE->fullname;
     }
-    $userurl = new moodle_url('/course/view.php', array('id' => $crit->userid, 'course' => 'courseid'));
+    $userurl = new moodle_url('/user/view.php', array('id' => $crit->userid, 'course' => $courseid));
     if (!empty($crit->firstname)) {
         $row[] = html_writer::link($userurl->out(false), fullname($crit));
     } else {
         // User who created this has been deleted.
         $row[] = get_string('deleteduser', 'block_course_ratings');
     }
+    //TODO replace below thing with delete and edit links
+    $row[] = html_writer::tag('input', array('type' => 'hidden', 'name' => 'action', 'value' => 'delete'));
+    $table->add_data($row);
 } 
+$table->finish_output();
 echo $OUTPUT->footer();
