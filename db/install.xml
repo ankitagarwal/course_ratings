@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="block_course_rating_criteria" COMMENT="Criteria list" NEXT="block_course_ratings_assoc">
+    <TABLE NAME="block_course_ratings_criteria" COMMENT="Criteria list" NEXT="block_course_ratings_assoc">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="criteria"/>
         <FIELD NAME="criteria" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" PREVIOUS="id" NEXT="courseid"/>
