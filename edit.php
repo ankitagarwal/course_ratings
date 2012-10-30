@@ -11,6 +11,7 @@ require_once('../../config.php');
 require_once('../../lib/formslib.php');
 require_once('../../lib/tablelib.php');
 require_once('criteria_form.php');
+require_once('locallib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', 0, PARAM_INT);
@@ -34,19 +35,20 @@ $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managecriteria', 'block_course_ratings'));
 
+// course rating object
+$critinstance = new course_ratings($cid);
+
 // Delete Criteria.
 if ($delete && confirm_sesskey($sesskey)) {
-    $rec = $DB->get_record('block_course_ratings_crit', array('id' => $cid), '*', MUST_EXIST);
     if ($hassystemcap || has_capability('blok/course_ratings:managecriteria', context_course::instance($rec->courseid))) {
-        $DB->delete_records('block_course_ratings_crit', array('id' => $cid));
-        $DB->delete_records('block_course_ratings_assoc', array('cid' => $cid));
-        $DB->delete_records('block_course_ratings_rating', array('cid' => $cid));
+        $critinstance->delete_crit();
         $cid = 0;
     } else {
         print_error('cannotdelete');
     }
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
+
 // TODO add assoc form and backend
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
 // Process data
@@ -65,9 +67,9 @@ if ($data = $mform->get_data()) {
     }
     if (!empty($critid)) {
         $critobj->id = $critid;
-        $DB->update_record('block_course_ratings_crit', $critobj);
+        $critinstance->update_crit($critobj);
     } else {
-        $DB->insert_record('block_course_ratings_crit', $critobj);
+        $critinstance->update_crit($critobj);
     }
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
@@ -75,19 +77,8 @@ if ($data = $mform->get_data()) {
 // Display form.
 $mform->display();
 
-$sql = "SELECT cr.*, c.fullname, u.firstname, u.lastname from {block_course_ratings_crit} cr
-        LEFT JOIN {course} c
-            ON cr.courseid = c.id
-        LEFT JOIN {user} u
-            ON cr.userid = u.id";
-if ($hassystemcap) {
-    // Return all since user has system context cap
-    $where = "";
-} else {
-    $where = " WHERE cr.courseid = ?";
-}
-$sql = $sql.$where;
-$crits = $DB->get_records_sql($sql, array ($courseid));
+
+$crits = $critinstance->get_crits($courseid, $hassystemcap);
 // Display existing criteria.
 $columns = array();
 $headers = array();
