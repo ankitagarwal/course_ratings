@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/course_ratings/db" VERSION="20121019" COMMENT="XMLDB file for Moodle course_Ratings block"
+<XMLDB PATH="blocks/course_ratings/db" VERSION="20121105" COMMENT="XMLDB file for Moodle course_Ratings block"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -30,8 +30,9 @@
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" NEXT="userid"/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="courseid"/>
         <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="userid" NEXT="cid"/>
-        <FIELD NAME="cid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="criteria id" PREVIOUS="courseid" NEXT="lastupdated"/>
-        <FIELD NAME="lastupdated" TYPE="int" LENGTH="15" NOTNULL="true" SEQUENCE="false" COMMENT="Time when this rating was last updated" PREVIOUS="cid"/>
+        <FIELD NAME="cid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="criteria id" PREVIOUS="courseid" NEXT="rating"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="1-5" PREVIOUS="cid" NEXT="lastupdated"/>
+        <FIELD NAME="lastupdated" TYPE="int" LENGTH="15" NOTNULL="true" SEQUENCE="false" COMMENT="Time when this rating was last updated" PREVIOUS="rating"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

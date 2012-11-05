@@ -93,6 +93,8 @@ class course_ratings {
      * @return bool
      */
     function delete_crit($cid = null) {
+        global $DB;
+
         if (empty($cid)) {
             if ($this->id != null) {
                 $cid = $this->id;
@@ -123,5 +125,45 @@ class course_ratings {
         // Update record
             return $DB->update_record('block_course_ratings_crit', $critobj);
         }
+    }
+
+    /**  Insert rating
+     *
+     * @param int $courseid
+     * @param int $cid
+     * @param int $userid
+     * @param int $rating
+     *
+     * @return mixed id on sucess, else false.
+     */
+    function insert_rating($courseid, $cid, $userid, $rating) {
+        global $DB;
+
+        if (empty($courseid) || empty($critid) || empty($userid) || empty($rating)) {
+            return false;
+        }
+        if (!is_int($courseid) || !is_int($critid) || !is_int($userid) || !is_int($rating)) {
+            return false;
+        }
+        if ($DB->record_exists('block_course_rating', array('userid' => $userid, 'courseid' => $courseid, 'cid' => $cid))) {
+            return false;
+        }
+        $obj = new stdClass();
+        $obj->userid = $userid;
+        $obj->courseid = $courseid;
+        $obj->cid = $cid;
+        $obj->rating = $rating;
+        $obj->lastupdated = time();
+        return $DB->insert_record('block_course_rating', $obj, true);
+    }
+
+    /** Delete  a rating
+     *
+     * @param int $rid rating id
+     */
+    function delete_rating($rid) {
+        global $DB;
+
+        $DB->delete_records('block_course_ratings_rating', array('rid' => $rid));
     }
 }
