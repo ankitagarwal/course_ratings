@@ -1,4 +1,4 @@
-<?php 
+<?php
 // This file is part of Moodle block course_ratings - http://moodle.org/
 /**
  * Adding/editing Rating criteria.
@@ -7,11 +7,14 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+$string['addassoc'] = 'Add association';
+$string['assoc'] = 'Add associations';
 $string['course_ratings:managecriteria'] = 'Manage criteria';
 $string['criteria'] = 'Criteria';
 $string['createdby'] = 'Criteria created by';
 $string['deleteduser'] = '<i>User has been deleted</i>';
 $string['managecriteria'] = 'Manage criteria';
+$string['missingccourse'] = 'A course must be selected';
 $string['missingcriteria'] = 'criteria cannot be empty';
 $string['nocrit'] = 'No existing criteria found in current context.';
 $string['pluginname'] = 'Course Ratings';

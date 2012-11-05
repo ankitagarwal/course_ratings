@@ -22,7 +22,6 @@ class course_rating_edit_form extends moodleform {
         $mform->setType('criteria', PARAM_TEXT);
         $mform->addRule('criteria', get_string('missingcriteria', 'block_course_ratings'), 'required', 'server');
 
-        $this->_customdata['courseid'] = 0;
         $courseid = empty($this->_customdata['courseid']) ? $PAGE->course->id : $this->_customdata['courseid'];
         $mform->addElement('hidden', 'courseid');
         $mform->setConstant('courseid', $courseid );

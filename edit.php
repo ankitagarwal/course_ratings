@@ -11,6 +11,7 @@ require_once('../../config.php');
 require_once('../../lib/formslib.php');
 require_once('../../lib/tablelib.php');
 require_once('criteria_form.php');
+require_once('assoc_form.php');
 require_once('locallib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
@@ -49,7 +50,7 @@ if ($delete && confirm_sesskey($sesskey)) {
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
 
-// TODO add assoc form and backend
+
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
 // Process data
 if ($data = $mform->get_data()) {
@@ -77,6 +78,9 @@ if ($data = $mform->get_data()) {
 // Display form.
 $mform->display();
 
+// TODO process assoc form
+$aform = new course_rating_assoc_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
+$aform->display();
 
 $crits = $critinstance->get_crits($courseid, $hassystemcap);
 // Display existing criteria.
