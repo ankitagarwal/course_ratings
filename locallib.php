@@ -18,7 +18,7 @@ class course_ratings {
 
     /** Constructor for the class.
      *
-     * @PARAM int $cid criteria id.
+     * @param int $cid criteria id.
      */
     function __construct($cid = null) {
         global $DB;
@@ -32,7 +32,7 @@ class course_ratings {
     /** Set the criteria id.
      *
      *
-     * @PARAM int $cid criteria id.
+     * @param int $cid criteria id.
      *
      * @return bool
      */
@@ -49,7 +49,7 @@ class course_ratings {
 
     /** Set the criteria id.
      *
-     * @PARAM int $cid criteria id.
+     * @param int $cid criteria id.
      *
      * @return stdClass crit object
      */
@@ -63,15 +63,22 @@ class course_ratings {
 
     /** Return criteria based on given conditions
      *
-     * @PARAM int $courseid course id.
-     * @PARAM bool $returnall return all criterias?
+     * @param int $courseid course id.
+     * @param bool $returnall return all criterias?
+     * @param
      *
      * @return Mixed array of criteria objects or false
      */
-    function get_crits($courseid = null, $returnall = false) {
+    static function get_crits($courseid = null, $returnall = false, $fields = '*') {
         global $DB;
 
-        $sql = "SELECT cr.*, c.fullname, u.firstname, u.lastname from {block_course_ratings_crit} cr
+        if ($fields === '*') {
+            $fields = 'cr.*, c.fullname, u.firstname, u.lastname';
+        } else {
+            // Always get id to keep first column unique
+            $fields = 'cr.id, '. $fields;
+        }
+        $sql = "SELECT $fields from {block_course_ratings_crit} cr
                 LEFT JOIN {course} c
                     ON cr.courseid = c.id
                 LEFT JOIN {user} u
@@ -88,7 +95,7 @@ class course_ratings {
 
     /** Delete a crit
      *
-     * @PARAM int $cid criteria id.
+     * @param int $cid criteria id.
      *
      * @return bool
      */
@@ -109,14 +116,14 @@ class course_ratings {
     }
     /** update or create a crit
      *
-     * @PARAM stdClass $critobj criteria object.
+     * @param stdClass $critobj criteria object.
      *
      * @return mixed true/false/id
      */
     function update_crit($critobj) {
         global $DB;
-        if(empty($critobj) || !is_array($critobj)) {
-            return true;
+        if(empty($critobj) || !is_object($critobj)) {
+            return false;
         }
         // New record
         if (empty($critobj->id)) {

@@ -27,7 +27,7 @@ class course_rating_edit_form extends moodleform {
         $mform->setConstant('courseid', $courseid );
 
         $options = empty($this->_customdata['hassystemcap']) ? array ('1' => 'course') : array ('1' => 'course', '0' => 'site');
-        $mform->addElement('select', 'level', get_string('select_level', 'block_course_ratings'), $options, array('0'));
+        $mform->addElement('select', 'level', get_string('select_level', 'block_course_ratings'), $options);
 
         $mform->addElement('hidden', 'cid');
         // We are editing an existing criteria.
