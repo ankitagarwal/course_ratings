@@ -82,58 +82,7 @@ $mform->display();
 $aform = new course_rating_assoc_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
 $aform->display();
 
-$crits = $critinstance->get_crits($courseid, $hassystemcap);
 // Display existing criteria.
-$columns = array();
-$headers = array();
+$critinstance->display_crits($courseid, $hassystemcap);
 
-$columns[]= 'criteria';
-$headers[]= get_string('criteria', 'block_course_ratings');
-$columns[]= 'course';
-$headers[]= get_string('course');
-$columns[]= 'createdby';
-$headers[]= get_string('createdby', 'block_course_ratings');
-$columns[]= 'edit';
-$headers[]= null;
-$columns[]= 'delete';
-$headers[]= null;
-
-$table = new flexible_table('crit-report');
-
-$table->define_columns($columns);
-$table->define_headers($headers);
-$table->define_baseurl($PAGE->url);
-
-
-$table->sortable(true);
-$table->collapsible(true);
-$table->no_sorting('checkbox');
-
-$table->setup();
-foreach ($crits as $cid => $crit) {
-    $row = array();
-    $row[] = $crit->criteria;
-    if ($crit->courseid != 0) {
-        $courseurl = new moodle_url('/course/view.php', array('id' => $crit->courseid));
-        $row[] = html_writer::link($courseurl->out(false), $crit->fullname);
-    } else {
-        $row[] = $SITE->fullname;
-    }
-    $userurl = new moodle_url('/user/view.php', array('id' => $crit->userid, 'course' => $courseid));
-    if (!empty($crit->firstname)) {
-        $row[] = html_writer::link($userurl->out(false), fullname($crit));
-    } else {
-        // User who created this has been deleted.
-        $row[] = get_string('deleteduser', 'block_course_ratings');
-    }
-    //TODO replace below thing with delete and edit links
-    $url = $PAGE->url;
-    $url->param('cid', $crit->id);
-    $url->param('sesskey', sesskey());
-    $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/edit').' />', array('title' => get_string('edit'), 'class' => 'iconsmall', 'alt' => get_string('edit')));
-    $url->param('delete', 1);
-    $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/delete').' />', array('title' => get_string('delete'), 'class' => 'iconsmall', 'alt' => get_string('delete')));
-    $table->add_data($row);
-}
-$table->finish_output();
 echo $OUTPUT->footer();
