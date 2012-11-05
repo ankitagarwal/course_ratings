@@ -16,7 +16,7 @@ class course_ratings {
     /* @var $crit stdClass criteria object */
     var $crit = null;
 
-    /* Constructor for the class.
+    /** Constructor for the class.
      *
      * @PARAM int $cid criteria id.
      */
@@ -29,12 +29,13 @@ class course_ratings {
         }
     }
 
-    /* Set the criteria id.
+    /** Set the criteria id.
      *
-    * @PARAM int $cid criteria id.
-    *
-    * return bool
-    */
+     *
+     * @PARAM int $cid criteria id.
+     *
+     * @return bool
+     */
     function set_crit($cid = null) {
         global $DB;
         if (!empty($cid)) {
@@ -46,12 +47,12 @@ class course_ratings {
         return false;
     }
 
-    /* Set the criteria id.
+    /** Set the criteria id.
      *
-    * @PARAM int $cid criteria id.
-    *
-    * return stdClass crit object
-    */
+     * @PARAM int $cid criteria id.
+     *
+     * @return stdClass crit object
+     */
     function return_crit($cid = null) {
         global $DB;
         if (!empty($cid)) {
@@ -60,13 +61,13 @@ class course_ratings {
         return $this->crit;
     }
 
-    /* Return criteria based on given conditions
+    /** Return criteria based on given conditions
      *
-    * @PARAM int $courseid course id.
-    * @PARAM bool $returnall return all criterias?
-    *
-    * return Mixed array of criteria objects or false
-    */
+     * @PARAM int $courseid course id.
+     * @PARAM bool $returnall return all criterias?
+     *
+     * @return Mixed array of criteria objects or false
+     */
     function get_crits($courseid = null, $returnall = false) {
         global $DB;
 
@@ -85,11 +86,11 @@ class course_ratings {
         return $DB->get_records_sql($sql, array ($courseid));
     }
 
-    /* Delete a crit
+    /** Delete a crit
      *
      * @PARAM int $cid criteria id.
      *
-     * return bool
+     * @return bool
      */
     function delete_crit($cid = null) {
         if (empty($cid)) {
@@ -104,12 +105,12 @@ class course_ratings {
         $DB->delete_records('block_course_ratings_rating', array('cid' => $cid));
         return true;
     }
-    /* update or create a crit
+    /** update or create a crit
      *
-    * @PARAM stdClass $critobj criteria object.
-    *
-    * return mixed true/false/id
-    */
+     * @PARAM stdClass $critobj criteria object.
+     *
+     * @return mixed true/false/id
+     */
     function update_crit($critobj) {
         global $DB;
         if(empty($critobj) || !is_array($critobj)) {
