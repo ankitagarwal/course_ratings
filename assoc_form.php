@@ -27,6 +27,7 @@ class course_rating_assoc_form extends moodleform {
         foreach ($results as $id => $result) {
             $crits[$id] = $result->criteria;
         }
+        // TODO : update second select drop down based on the first one..
         $mform->addElement('select', 'criteria', get_string('criteria', 'block_course_ratings'), (array)$crits);
         $mform->addRule('criteria', get_string('missingcriteria', 'block_course_ratings'), 'required', 'server');
 

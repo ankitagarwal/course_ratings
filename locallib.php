@@ -230,7 +230,8 @@ class course_ratings {
 
         $table->sortable(true);
         $table->collapsible(true);
-        $table->no_sorting('checkbox');
+        $table->no_sorting('delete');
+        $table->no_sorting('edit');
 
         $table->setup();
         foreach ($crits as $cid => $crit) {
@@ -240,7 +241,7 @@ class course_ratings {
                 $courseurl = new moodle_url('/course/view.php', array('id' => $crit->courseid));
                 $row[] = html_writer::link($courseurl->out(false), $crit->fullname);
             } else {
-                $row[] = $SITE->fullname;
+                $row[] = get_string('systemwide', 'block_course_ratings');
             }
             $userurl = new moodle_url('/user/view.php', array('id' => $crit->userid, 'course' => $courseid));
             if (!empty($crit->firstname)) {
@@ -271,7 +272,7 @@ class course_ratings {
     function add_assoc($cid, $courseid) {
         global $DB;
 
-        if (!ctype_digit($cid) || !ctype_digit($courseid)) {
+        if (!is_numeric($cid) || !is_numeric($courseid)) {
             return false;
         }
         $critcourse = $DB->get_field("block_course_ratings_crit", 'courseid', array('id' => $cid));
@@ -301,29 +302,119 @@ class course_ratings {
      */
     function get_assoc($aid) {
         global $DB;
-
-        if (!ctype_digit(aid)) {
+        if (!is_numeric($aid)) {
             return false;
         }
         return $DB->get_record("block_course_ratings_assoc", array('id' => $aid));
     }
-    /** Delete an association
+
+    /** Return criteria based on given conditions
      *
-     * @param int $aid association id
-     * @return boolean
+     * @param int    $courseid  course id.
+     * @param bool   $returnall return all criterias?
+     * @param string $fields    list of fields to be returned
+     * @return Mixed array of criteria objects or false
      */
-    function delete_assoc($aid) {
+    static function get_assocs($courseid = null, $returnall = false, $fields = '*') {
         global $DB;
 
-        $assoc = $this->get_assoc($aid);
+        if ($fields === '*') {
+            $fields = 'a.*, cr.criteria, c.fullname, u.firstname, u.lastname';
+        } else {
+            // Always get id to keep first column unique
+            $fields = 'a.id, '. $fields;
+        }
+        $sql = "SELECT $fields from {block_course_ratings_assoc} a
+                LEFT JOIN {block_course_ratings_crit} cr
+                    ON a.cid = cr.id
+                LEFT JOIN {course} c
+                    ON a.courseid = c.id
+                LEFT JOIN {user} u
+                    ON cr.userid = u.id";
+        if ($returnall) {
+            // Return all since user has system context cap
+            $where = "";
+        } else {
+            $where = " WHERE a.courseid = ?";
+        }
+        $sql = $sql.$where;
+        return $DB->get_records_sql($sql, array ($courseid));
+    }
+
+    /** Delete an association
+     *
+     * @param int $assoc association id or object
+     * @return boolean
+     */
+    function delete_assoc($assoc) {
+        global $DB;
+
+        if (!is_object($assoc)) {
+             $assoc = $this->get_assoc($assoc);
+        }
+
         if (empty($assoc)) {
             return false;
         }
+        $aid = $assoc->id;
         $DB->delete_records("block_course_ratings_assoc", array('id' => $aid));
-        $ratings = $this->get_ratings($assoc->cid, $assoc->courseid);
-        foreach ($ratings as $rating) {
-            $this->delete_rating($rating->id);
-        }
+        // Using api to delete one by one is too expensive.
+        $DB->delete_records("block_course_ratings_rating", array('cid' => $assoc->cid, 'courseid' => $assoc->courseid));
         return true;
     }
+
+
+    /** Display Associations
+     *
+     * @param int    $courseid
+     * @param bool   $hassystemcap
+     *
+     */
+    function display_assocs($courseid, $hassystemcap) {
+        global $PAGE, $DB, $SITE, $OUTPUT;
+
+        $assocs = $this->get_assocs($courseid, $hassystemcap);
+
+        $columns = array();
+        $headers = array();
+
+        $columns[]= 'criteria';
+        $headers[]= get_string('criteria', 'block_course_ratings');
+        $columns[]= 'course';
+        $headers[]= get_string('course');
+        $columns[]= 'delete';
+        $headers[]= null;
+
+        $table = new flexible_table('assoc-report');
+
+        $table->define_columns($columns);
+        $table->define_headers($headers);
+        $table->define_baseurl($PAGE->url);
+
+
+        $table->sortable(true);
+        $table->collapsible(true);
+        $table->no_sorting('delete');
+
+        $table->setup();
+        foreach ($assocs as $cid => $assoc) {
+            $row = array();
+            $row[] = $assoc->criteria;
+            if ($assoc->courseid != 0) {
+                $courseurl = new moodle_url('/course/view.php', array('id' => $assoc->courseid));
+                $row[] = html_writer::link($courseurl->out(false), $assoc->fullname);
+            } else {
+                // Assoc cant be system wide.
+                $row[] = get_string('invalidassoc', 'block_course_ratings');
+            }
+            $url = $PAGE->url;
+            $url->param('aid', $assoc->id);
+            $url->param('sesskey', sesskey());
+            $url->param('delete', 1);
+            $row[] = html_writer::link($url, '<img src ='.$OUTPUT->pix_url('t/delete').' />', array('title' => get_string('delete'), 'class' => 'iconsmall', 'alt' => get_string('delete')));
+            $table->add_data($row);
+        }
+        $table->finish_output();
+    }
+
 }

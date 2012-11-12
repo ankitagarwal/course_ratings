@@ -1,4 +1,4 @@
-<?php 
+<?php
 // This file is part of Moodle block course_ratings - http://moodle.org/
 /**
  * Adding/editing Rating criteria.
@@ -8,6 +8,6 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012101600.01;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->version   = 2012101600;        // The current plugin version (Date: YYYYMMDDXX)
 $plugin->requires  = 2012061700;        // Requires this Moodle version
 $plugin->component = 'block_course_ratings';      // Full name of the plugin (used for diagnostics)

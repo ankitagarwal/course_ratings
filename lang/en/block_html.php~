@@ -1,9 +1,0 @@
-<?php 
-// This file is part of Moodle block course_ratings - http://moodle.org/
-/**
- * Adding/editing Rating criteria.
- *
- * @copyright 2012 Ankit Kumar Agarwal
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-$string['pluginname'] = '';

@@ -1,4 +1,4 @@
-<?php 
+<?php
 // This file is part of Moodle block course_ratings - http://moodle.org/
 /**
  * Adding/editing Rating criteria.
@@ -13,6 +13,7 @@ $capabilities = array(
 
     'block/course_ratings:managecriteria' => array(
 
+        'riskbitmask' => RISK_SPAM | RISK_DATALOSS | RISK_CONFIG,
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(
@@ -33,6 +34,20 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
             'student' => CAP_ALLOW
         )
-    )
+    ),
+
+    'block/course_ratings:addinstance' => array(
+        'riskbitmask' => RISK_SPAM,
+
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        ),
+
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+    ),
 
 );

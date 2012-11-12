@@ -16,6 +16,7 @@ require_once('locallib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $cid = optional_param('cid', 0, PARAM_INT);
+$aid = optional_param('aid', 0, PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
 $sesskey = optional_param('sesskey', '', PARAM_TEXT);
 
@@ -36,12 +37,12 @@ $PAGE->set_pagelayout('standard');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('managecriteria', 'block_course_ratings'));
 
-// course rating object
+// course rating object.
 $critinstance = new course_ratings($cid);
 
 // Delete Criteria.
-if ($delete && confirm_sesskey($sesskey)) {
-    if ($hassystemcap || has_capability('blok/course_ratings:managecriteria', context_course::instance($rec->courseid))) {
+if ($delete && confirm_sesskey($sesskey) && !empty($cid)) {
+    if ($hassystemcap || has_capability('blok/course_ratings:managecriteria', context_course::instance($critinstance->crit['courseid']))) {
         $critinstance->delete_crit();
         $cid = 0;
     } else {
@@ -49,6 +50,20 @@ if ($delete && confirm_sesskey($sesskey)) {
     }
     echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
 }
+
+// Delete assoc.
+if ($delete && confirm_sesskey($sesskey) && !empty($aid)) {
+    $assoc = $critinstance->get_assoc($aid);
+    if ($hassystemcap || has_capability('blok/course_ratings:managecriteria', context_course::instance($assoc->courseid))) {
+        $critinstance->delete_assoc($assoc);
+        $aid = 0;
+    } else {
+        print_error('cannotdelete');
+    }
+    echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
+}
+
+
 
 
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
@@ -95,7 +110,12 @@ if ($data = $aform->get_data()) {;
 $mform->display();
 $aform->display();
 
+// Display existing associations.
+echo html_writer::tag('h3', get_string('associations', 'block_course_ratings'));
+$critinstance->display_assocs($courseid, $hassystemcap);
+
 // Display existing criteria.
+echo html_writer::tag('h3', get_string('criterias', 'block_course_ratings'));
 $critinstance->display_crits($courseid, $hassystemcap);
 
 echo $OUTPUT->footer();
