@@ -52,7 +52,7 @@ if ($delete && confirm_sesskey($sesskey)) {
 
 
 $mform = new course_rating_edit_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
-// Process data
+// Process data.
 if ($data = $mform->get_data()) {
     $critobj = new stdClass();
     $critobj->criteria = $data->criteria;
@@ -78,8 +78,23 @@ if ($data = $mform->get_data()) {
 // Display form.
 $mform->display();
 
-// TODO process assoc form
+// Assoc form.
 $aform = new course_rating_assoc_form(null, array('hassystemcap' => $hassystemcap, 'cid' => $cid, 'courseid' => $courseid));
+
+// Process Assoc data.
+if ($data = $aform->get_data()) {;
+
+    // Perm check!
+    require_capability('blok/course_ratings:managecriteria', context_course::instance($data->course));
+
+    if ($update = $critinstance->add_assoc($data->criteria, $data->course)) {
+        echo html_writer::tag('div', get_string('updated', 'block_course_ratings'));
+    } else {
+        echo html_writer::tag('div', get_string('somethingwrong', 'block_course_ratings'));
+    }
+}
+
+// Display assoc form.
 $aform->display();
 
 // Display existing criteria.

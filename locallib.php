@@ -152,7 +152,7 @@ class course_ratings {
         if (!is_int($courseid) || !is_int($critid) || !is_int($userid) || !is_int($rating)) {
             return false;
         }
-        if ($DB->record_exists('block_course_rating', array('userid' => $userid, 'courseid' => $courseid, 'cid' => $cid))) {
+        if ($DB->record_exists('block_course_ratings_rating', array('userid' => $userid, 'courseid' => $courseid, 'cid' => $cid))) {
             return false;
         }
         $obj = new stdClass();
@@ -161,7 +161,32 @@ class course_ratings {
         $obj->cid = $cid;
         $obj->rating = $rating;
         $obj->lastupdated = time();
-        return $DB->insert_record('block_course_rating', $obj, true);
+        return $DB->insert_record('block_course_ratings_rating', $obj, true);
+    }
+
+    /** Get ratings specfic to a criteria and course
+     *
+     * @param int $cid        criteria id
+     * @param int $courseid   course id
+     * @return array
+     */
+
+    function get_ratings($cid, $courseid) {
+        global $DB;
+
+        return $DB->get_records("block_course_ratings_rating", array('cid' => $cid, 'courseid' => $courseid));
+    }
+
+    /** Get rating specfic to a given rating id
+     *
+     * @param int $rid rating id
+     * @return array
+     */
+
+    function get_ratings($rid) {
+        global $DB;
+
+        return $DB->get_records("block_course_ratings_rating", array('id' => $rid));
     }
 
     /** Delete  a rating
@@ -234,5 +259,70 @@ class course_ratings {
             $table->add_data($row);
         }
         $table->finish_output();
+    }
+
+    /** Add a association
+     *
+     * @param int $cid         criteria id
+     * @param int $courseid    courseid
+     * @return bool
+     */
+
+    function add_assoc($cid, $courseid) {
+        global $DB;
+
+        if (!is_int($cid) || !is_int($courseid)) {
+            return false;
+        }
+        if ($critcourse = $DB->get_field("block_course_ratings_crit", 'courseid', array('id' => $cid))) {
+            return false;
+        }
+
+        // This association cannot be created as the criteria was created in a different context.
+        // How the hell did you end up here?
+        if ($critcourse != 0 || $critcourse != $courseid) {
+            return false;
+        }
+
+        if ($DB->record_exists("course", array('id' => $courseid))) {
+            return false;
+        }
+
+        $dataobject = new stdClass();
+        $dataobject->cid = $cid;
+        $dataobject->courseid = $courseid;
+        return $DB->insert_record("block_course_ratings_assoc", $dataobject);
+    }
+    /** Get association details of a given assoc id
+     *
+     * @param int $aid assoc id
+     * @return mixed bool|array
+     */
+    function get_assoc($aid) {
+        global $DB;
+
+        if (!is_int(aid)) {
+            return false;
+        }
+        return $DB->get_record("block_course_ratings_assoc", array('id' => $aid));
+    }
+    /** Delete an association
+     *
+     * @param int $aid association id
+     * @return boolean
+     */
+    function delete_assoc($aid) {
+        global $DB;
+
+        $assoc = $this->get_assoc($aid);
+        if (empty($assoc)) {
+            return false;
+        }
+        $DB->delete_records("block_course_ratings_assoc", array('id' => $aid));
+        $ratings = $this->get_ratings($assoc->cid, $assoc->courseid);
+        foreach ($ratings as $rating) {
+            $this->delete_rating($rating->id);
+        }
+        return true;
     }
 }
