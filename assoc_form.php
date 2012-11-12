@@ -19,6 +19,10 @@ class course_rating_assoc_form extends moodleform {
         $mform->addElement('header', 'configheader', get_string('assoc', 'block_course_ratings'));
 
         $courseid = empty($this->_customdata['courseid']) ? $PAGE->course->id : $this->_customdata['courseid'];
+
+        $mform->addElement('hidden', 'courseid');
+        $mform->setConstant('courseid', $courseid );
+
         $results = course_ratings::get_crits($courseid, $this->_customdata['hassystemcap'], 'criteria');
         foreach ($results as $id => $result) {
             $crits[$id] = $result->criteria;

@@ -183,7 +183,7 @@ class course_ratings {
      * @return array
      */
 
-    function get_ratings($rid) {
+    function get_rating($rid) {
         global $DB;
 
         return $DB->get_records("block_course_ratings_rating", array('id' => $rid));
@@ -271,20 +271,21 @@ class course_ratings {
     function add_assoc($cid, $courseid) {
         global $DB;
 
-        if (!is_int($cid) || !is_int($courseid)) {
+        if (!ctype_digit($cid) || !ctype_digit($courseid)) {
             return false;
         }
-        if ($critcourse = $DB->get_field("block_course_ratings_crit", 'courseid', array('id' => $cid))) {
+        $critcourse = $DB->get_field("block_course_ratings_crit", 'courseid', array('id' => $cid));
+        if ($critcourse === false) {
             return false;
         }
 
         // This association cannot be created as the criteria was created in a different context.
         // How the hell did you end up here?
-        if ($critcourse != 0 || $critcourse != $courseid) {
+        if ($critcourse != 0 && $critcourse != $courseid) {
             return false;
         }
 
-        if ($DB->record_exists("course", array('id' => $courseid))) {
+        if (!$DB->record_exists("course", array('id' => $courseid))) {
             return false;
         }
 
@@ -301,7 +302,7 @@ class course_ratings {
     function get_assoc($aid) {
         global $DB;
 
-        if (!is_int(aid)) {
+        if (!ctype_digit(aid)) {
             return false;
         }
         return $DB->get_record("block_course_ratings_assoc", array('id' => $aid));
