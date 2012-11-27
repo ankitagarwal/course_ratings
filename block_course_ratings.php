@@ -7,16 +7,18 @@ class block_course_ratings extends block_base {
      */
     private $courseid;
 
-    function init() {
+    /* course context on which the block is appearing */
+    private $coursecontext;
+
+    public function init() {
         $this->title = get_string('pluginname', 'block_course_ratings');
+    }
+    public function get_content() {
+        global $CFG;
         if (!empty($this->context)) {
             $this->courseid = get_courseid_from_context($this->context);
+            $this->coursecontext = context_course::instance($this->courseid);
         }
-
-    }
-    function get_content() {
-        global $CFG;
-
         // We are not intentionally checking for $this->content.
         $this->content = new stdClass();
         $this->content->text = '';
@@ -25,14 +27,14 @@ class block_course_ratings extends block_base {
             // This should never happen.
             return $this->content;
         }
-        if (has_capability('block/course_ratings:ratecourse', $this->context)) {
+        if (has_capability('block/course_ratings:ratecourse', $this->coursecontext)) {
             // Show cute stars.
             $this->content->text = get_string('ratethis', 'block_course_ratings');
             $this->content->text .= "";
         }
-        if (has_capability('block/course_ratings:managecriteria', $this->context)) {
+        if (has_capability('block/course_ratings:managecriteria', $this->coursecontext)) {
             // Show the settings link.
-            $this->content->footer = html_writer::link($CFG->dirroot."blocks/course_ratings/edit.php?courseid=".$this->courseid, get_string('settings'));
+            $this->content->footer = html_writer::link($CFG->wwwroot."/blocks/course_ratings/edit.php?courseid=".$this->courseid, get_string('settings'));
         }
         return $this->content;
     }
