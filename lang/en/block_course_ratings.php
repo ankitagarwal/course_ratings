@@ -23,6 +23,7 @@ $string['missingccourse'] = 'A course must be selected';
 $string['missingcriteria'] = 'criteria cannot be empty';
 $string['nocrit'] = 'No existing criteria found in current context.';
 $string['pluginname'] = 'Course Ratings';
+$string['ratethis'] = 'Rate this course :';
 $string['select_level'] = 'Level of criteria';
 $string['select_level_help'] = 'If you create the criteria at course level, it can only be used inside the particular course.
                                 Also note that course level criteria will be deleted along with all its data when a course is deleted';
