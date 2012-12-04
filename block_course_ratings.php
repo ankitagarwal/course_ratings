@@ -30,7 +30,26 @@ class block_course_ratings extends block_base {
         if (has_capability('block/course_ratings:ratecourse', $this->coursecontext)) {
             // Show cute stars.
             $this->content->text = get_string('ratethis', 'block_course_ratings');
-            $this->content->text .= "";
+            // Hack to be removed once MDL-36334 is fixed
+             $this->fire_yui();
+            $this->content->text .= '<input type="text" name="myRatings" id="myRatings" value="3.7">
+
+<div class="demo" id="rating1"></div>
+
+<div class="demo" id="rating2">
+    <input type="radio" name="ratingValue" value="Horrible" title="Horrible" />
+    <input type="radio" name="ratingValue" value="Very bad" title="Very bad" />
+    <input type="radio" name="ratingValue" value="Bad" title="Bad" />
+    <input type="radio" name="ratingValue" value="Acceptable" title="Acceptable" />
+    <input type="radio" name="ratingValue" value="Good" title="Good" />
+    <input type="radio" name="ratingValue" value="Very good" title="Very good" />
+    <input type="radio" name="ratingValue" value="Perfect" title="Perfect" />
+</div>
+
+<div class="demo" id="rating3">
+    <input type="radio" name="ratingValue" value="v1" title="Horrible" />
+    <input type="radio" name="ratingValue" value="v2" title="Very bad" />
+</div>';
         }
         if (has_capability('block/course_ratings:managecriteria', $this->coursecontext)) {
             // Show the settings link.
@@ -80,5 +99,41 @@ class block_course_ratings extends block_base {
      */
     public function instance_can_be_hidden() {
         return false;
+    }
+
+    /** Load up the rating yui widget
+     *
+     * Not using this as cannot get it working
+     */
+
+    function fire_yui() {
+        //$this->page->requires->__counstructor();
+        $modulepath = '/blocks/course_ratings/';
+        $this->page->requires->js(new moodle_url($modulepath.'yui/load.js'));
+        $this->page->requires->js(new moodle_url($modulepath.'yui/rate.js'));
+
+        //$this->page->requires->js_init_call('Y.Ratings({ srcNode: "#myWidget_basic" }).render');
+
+        //$this->page->requires->js_init_code()
+
+        //$this->page->requires->yui_module(array('loader', 'gallery-ratings', 'moodle-block_course_ratings-load'), 'Y.Ratings({ srcNode: "#myWidget_basic" }).render');
+        $this->page->requires->yui_module(array('loader', 'base', 'event', 'gallery-aui-rating', 'gallery-ratings', 'moodle-block_course_ratings-load'), 'M.block_course_ratings_load.init');
+        $this->page->requires->yui_module(array('gallery-ratings', 'event', 'moodle-block_course_ratings-rate'), 'M.block_course_ratings.init', array());
+        //$this->page->requires->js_init_call('M.block_course_ratings.init');
+        //$this->page->requires->js_module($module);
+        //$this->page->requires->js(new moodle_url($modulepath.'yui/rate.js'));
+        //$this->page->requires->js_init_call('M.block_course_ratings.init');
+
+        /*//$this->page->requires->js_init_call('', array('x'), false, $module);
+        $module = array(
+            'name' => 'block_course_ratings',
+            'fullpath' => $modulepath.'yui/rate.js',
+            'requires' => array('gallery-aui-rating')
+        );
+        //$this->page->requires->js_module($module);
+       //$this->page->requires->js_init_call('M.block_course_ratings.init', array('x'), false, $module);
+        $this->page->requires->yui_module(array('gallery-aui-ratings', 'moodle-block_course_ratings-rate'), '', array(), '2011.10.20-23-28', false);
+        $this->page->requires->js_init_call('M.block_course_ratings.init');
+        //$this->page->requires->js_init_call('M.block_course_ratings.init', array(), true, $module);*/
     }
 }
