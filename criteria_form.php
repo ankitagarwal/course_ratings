@@ -38,7 +38,10 @@ class course_rating_edit_form extends moodleform {
             $mform->setConstant('courseid', $rec->courseid);
             $mform->setDefault('criteria', $rec->criteria);
             if ($rec->courseid == 0) {
-                $mform->setDefault('level', '0');
+                // we can't allow downgrade, it will mess up existing associations
+                $mform->setConstant('level', '0');
+                $mform->hardFreeze('level');
+                $mform->addHelpButton('level', 'nolevelchange', 'block_course_ratings');
             } else {
                 $mform->setDefault('level', '1');
             }
